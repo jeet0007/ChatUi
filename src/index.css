@@ -1,13 +1,41 @@
-body {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+
+  height: 100vh;
+  width: 100vw;
+
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.modal-mask {
+  @apply absolute left-0 top-0 right-0 bottom-0 h-full z-50;
+}
+
+.ekyc-card .card-title {
+  margin-bottom: 0 !important;
+}
+
+:root {
+  --toastify-color-info: #2094f3;
+  --toastify-color-success: #199759;
+  --toastify-color-warning: #ff9900;
+  --toastify-color-error: #f22510;
+}
+
+.vertical-crop .ReactCrop,
+.vertical-crop .ReactCrop > div,
+.vertical-crop .ReactCrop__image {
+  height: 100%;
 }
