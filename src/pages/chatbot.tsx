@@ -24,7 +24,7 @@ export const Chatbot = () => {
           </div>
         </div>
         <div className="w-4/5 uppercase font-semibold ">
-          <div className="tabs ">
+          <div className="tabs md:tabs-sm ">
             <a className="tab">home</a>
             <p className="tab tab-active border-b-4 font-bold border-green-600">
               chat

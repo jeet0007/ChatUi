@@ -1,10 +1,12 @@
 import './App.css'
-import { Chatbot } from 'pages/chatbot'
+
+import { QrReader } from 'pages/qrReader'
 
 function App() {
   return (
     <div className="App">
-      <Chatbot />
+      {/* <Chatbot /> */}
+      <QrReader />
     </div>
   )
 }
