@@ -1,5 +1,5 @@
 import jsQR from 'jsqr'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScanRegion } from 'types/qr'
 
 export const getBase64 = (file: File) => {
@@ -61,10 +61,6 @@ export const resizeImage = (
   })
 }
 
-type QrData = {
-  image: string
-  qr?: string
-}
 const generateScanRegion = async (img: File) => {
   const base64 = (await getBase64(img)) as string
   const image = new Image()
@@ -85,11 +81,25 @@ const generateScanRegion = async (img: File) => {
       regionName: 'Top half',
     },
     {
+      canvasWidth: image.width,
+      canvasHeight: image.height / 2,
+      x: 0,
+      y: -image.height / 2,
+      regionName: 'bottom half',
+    },
+    {
       canvasWidth: image.width / 2,
       canvasHeight: image.height,
       x: 0,
       y: 0,
       regionName: 'left half ',
+    },
+    {
+      canvasWidth: image.width / 2,
+      canvasHeight: image.height,
+      x: -image.width / 2,
+      y: 0,
+      regionName: 'right half ',
     },
     {
       canvasWidth: image.width / 2,
@@ -105,42 +115,58 @@ const generateScanRegion = async (img: File) => {
       y: 0,
       regionName: 'top right quarter',
     },
+    {
+      canvasWidth: image.width / 2,
+      canvasHeight: image.height / 2,
+      x: 0,
+      y: -image.height / 2,
+      regionName: 'bottom left quarter',
+    },
+    {
+      canvasWidth: image.width / 2,
+      canvasHeight: image.height / 2,
+      x: -image.width / 2,
+      y: -image.height / 2,
+      regionName: 'bottom right quarter',
+    },
   ]
   return scanRegions
 }
 
-export const getQrData = async (
-  file: File,
-  ref: React.RefObject<HTMLCanvasElement>
-): Promise<string> => {
+export const getQrData = async (file: File): Promise<string> => {
   return new Promise((resolve) => {
     getBase64(file).then((base64) => {
       const image = new Image()
       image.src = base64 as string
       image.onload = () => {
-        const canvas = ref.current
-        if (canvas) {
+        const arrays = Array<HTMLCanvasElement>()
+        generateScanRegion(file).then((scanRegions) => {
+          const canvas = document.createElement('canvas')
           const ctx = canvas.getContext('2d')
-          generateScanRegion(file).then((scanRegions) => {
-            scanRegions.forEach((region) => {
-              canvas.width = region.canvasWidth || image.width
-              canvas.height = region.canvasHeight || image.height
-              ctx?.drawImage(image, region.x, region.y)
-              const imageData = ctx?.getImageData(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-              )
-              if (imageData) {
-                const code = jsQR(imageData.data, canvas.width, canvas.height)
-                if (code) {
-                  resolve(code.data)
-                }
+          scanRegions.forEach((region) => {
+            canvas.width = region.canvasWidth
+            canvas.height = region.canvasHeight
+            ctx?.drawImage(image, region.x, region.y)
+            const imageData = ctx?.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            )
+            arrays.push(canvas)
+            if (imageData) {
+              const code = jsQR(imageData.data, canvas.width, canvas.height)
+              if (code) {
+                console.log('found in', region.regionName)
+                return resolve(code.data)
               }
-            })
+              console.log('not found in', region.regionName)
+
+              return ''
+            }
+            return ''
           })
-        }
+        })
       }
     })
   })
@@ -148,29 +174,33 @@ export const getQrData = async (
 
 export const QrReader = () => {
   const [img, setImg] = useState('')
-  const ref = useRef<HTMLCanvasElement>(null)
+  const [qr, setQr] = useState('')
   useEffect(() => {}, [img])
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e && e.target && e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]
       setImg(URL.createObjectURL(file))
       try {
-        const data = await getQrData(file, ref)
-        console.log(data)
+        const data = await getQrData(file)
+        if (data) {
+          setQr(data)
+        } else {
+          setQr('')
+        }
       } catch (error) {}
     }
   }
   return (
-    <div className="container  w-full flex flex-row">
-      <div className="flex-auto">
-        <div>
-          QR Reader
-          <input type="file" onChange={handleFile}></input>
+    <div className="container w-full h-full">
+      <div className="flex flex-row">
+        <div className="flex-auto">
+          <div>
+            QR Reader
+            <input type="file" onChange={handleFile}></input>
+          </div>
+          <img className="image-full" src={img}></img>
         </div>
-        <img className="image-full" src={img}></img>
-      </div>
-      <div className="flex-">
-        <canvas ref={ref}></canvas>
+        <iframe className="flex-auto" src={qr}></iframe>
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import {
   faSearch,
 } from '@fortawesome/free-solid-svg-icons'
 
-export const Chatbot = () => {
+const Chatbot = () => {
   return (
     <div className="h-screen justify-center  bg-base-300 p-20 font-sans">
       <div className="container flex flex-row  bg-gray-200 min-w-full rounded-box p-10">
@@ -49,3 +49,5 @@ export const Chatbot = () => {
     </div>
   )
 }
+
+export default Chatbot
