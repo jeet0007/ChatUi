@@ -7,14 +7,15 @@ import Chatbot from 'pages/chatbot'
 import { Suspense } from 'react'
 import Loading from 'components/Loading'
 import { callApi, signMessage } from 'utils/encode'
+import { AutoCrop } from 'pages/auto-crop'
 
 function App() {
-  const date = new Date()
-  date.setHours(date.getHours() + 7)
-  const formatted = date.toISOString()
-  const format = formatted.substring(0, formatted.length - 5)
-  const sign = signMessage(`A58|${format}`)
-  callApi(sign, format)
+  // const date = new Date()
+  // date.setHours(date.getHours() + 7)
+  // const formatted = date.toISOString()
+  // const format = formatted.substring(0, formatted.length - 5)
+  // const sign = signMessage(`A58|${format}`)
+  // callApi(sign, format)
   return (
     <Router>
       <Suspense fallback={<Loading />}>
@@ -22,6 +23,7 @@ function App() {
           <Route exact path="/" component={Chatbot} />
           <Route exact path="/Image-resizer" component={QrReader} />
           <Route exact path="/Qr-reader" component={ImageResizer} />
+          <Route exact path="/auto-crop" component={AutoCrop} />
         </Switch>
       </Suspense>
     </Router>
