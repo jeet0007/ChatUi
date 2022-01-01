@@ -3,10 +3,9 @@ import './App.css'
 import { QrReader } from 'pages/qrReader'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import { ImageResizer } from 'pages/image-resizer'
-import Chatbot from 'pages/chatbot'
+import { TableOfContext } from 'pages'
 import { Suspense } from 'react'
 import Loading from 'components/Loading'
-import { callApi, signMessage } from 'utils/encode'
 import { AutoCrop } from 'pages/auto-crop'
 
 function App() {
@@ -20,7 +19,7 @@ function App() {
     <Router>
       <Suspense fallback={<Loading />}>
         <Switch>
-          <Route exact path="/" component={Chatbot} />
+          <Route exact path="/" component={TableOfContext} />
           <Route exact path="/Image-resizer" component={QrReader} />
           <Route exact path="/Qr-reader" component={ImageResizer} />
           <Route exact path="/auto-crop" component={AutoCrop} />
