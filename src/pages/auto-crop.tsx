@@ -45,10 +45,8 @@ export const AutoCrop = () => {
             })
             ctx.closePath()
             ctx.clip()
-
-            const data = canvas.toDataURL('image/png')
-            console.log(data)
-            setResizedImg(data)
+            ctx.save()
+            ctx.globalCompositeOperation = 'source-over'
           }
         }
       }
