@@ -1,5 +1,9 @@
 /* eslint-disable no-await-in-loop */
-export const urltoFile = (url, filename, mimeType) => {
+export const urltoFile = async (
+  url: string,
+  filename: string,
+  mimeType: string
+) => {
   return fetch(url)
     .then(function (res) {
       return res.arrayBuffer()
