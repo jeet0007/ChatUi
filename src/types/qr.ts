@@ -6,4 +6,5 @@ export interface ScanRegion {
   width?: number
   height?: number
   regionName?: string
+  scale?: number
 }

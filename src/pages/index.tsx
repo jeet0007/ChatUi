@@ -18,6 +18,11 @@ export const TableOfContext = () => {
             Auto crop
           </a>
         </li>
+        <li>
+          <a className="link hover:border-blue-300" href="/HtmlQrReader">
+            HtmlQrReader
+          </a>
+        </li>
       </ul>
     </div>
   )
