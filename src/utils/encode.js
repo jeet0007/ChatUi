@@ -2,7 +2,6 @@ import crypto from 'crypto'
 import axios from 'axios'
 
 export function signMessage(message) {
-  console.log('signMessage', message)
   const key =
     '-----BEGIN RSA PRIVATE KEY-----\n' +
     'MIIEpAIBAAKCAQEA3vFKUMhrdeYDpS2i27PO/sdH2E/hq679v9+WGajqDX3bP36W\n' +

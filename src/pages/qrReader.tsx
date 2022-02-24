@@ -10,7 +10,7 @@ export const getBase64 = (file: File) => {
       ok(reader.result)
     }
     reader.onerror = function (error) {
-      console.log('Error: ', error)
+      console.error('Error: ', error)
       ok('')
     }
   })
@@ -129,10 +129,8 @@ export const getQrData = async (file: File): Promise<string> => {
                 inversionAttempts: 'dontInvert',
               })
               if (code) {
-                console.log('found in', region.regionName)
                 return resolve(code.data)
               }
-              console.log('not found in', region.regionName)
             }
           }
           return ''
@@ -158,9 +156,7 @@ export const QrReader = () => {
         } else {
           setQr('')
         }
-      } catch (error) {
-        console.log(error)
-      }
+      } catch (error) {}
     }
   }
   return (

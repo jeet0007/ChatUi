@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { getCropPosition } from 'utils/autoCrop'
 import LoadingOverlay from 'react-loading-overlay'
+import polygonCrop from 'polygon-crop'
 
 export const AutoCrop = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -10,12 +11,7 @@ export const AutoCrop = () => {
   const [points, setPoints] = useState([])
   const [isLoading, setLoading] = useState(false)
   const imageFile = useRef<File>()
-  const sortFunction = (a, b) => {
-    if (a[0] === b[0]) {
-      return 0
-    }
-    return a[0] < b[0] ? -1 : 1
-  }
+
   const getImagePolygons = async (image: File) => {
     setLoading(true)
     setPoints([])
@@ -29,51 +25,39 @@ export const AutoCrop = () => {
   useEffect(() => {
     setResizedImg('')
     if (points.length > 0 && originalImage) {
-      points.sort(sortFunction)
       const canvas = canvasRef.current
       if (canvas) {
         const ctx = canvas.getContext('2d')
         if (ctx) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-          const width = Math.sqrt(
-            Math.pow(points[1][0] - points[0][0], 2) +
-              Math.pow(points[1][1] - points[0][1], 2)
-          )
-          const height = Math.sqrt(
-            Math.pow(points[2][0] - points[1][0], 2) +
-              Math.pow(points[2][1] - points[1][1], 2)
-          )
-          const croppData = {
-            boundaries: {
-              x: points[0][0],
-              y: points[0][1],
-              x_width: width,
-              y_height: height,
-            },
-          }
+          const img = new Image()
+          img.src = originalImage
+          img.onload = () => {
+            const scale = Math.max(
+              canvas.width / img.width,
+              canvas.height / img.height
+            )
+            const x = canvas.width / 2 - (img.width / 2) * scale
+            const y = canvas.height / 2 - (img.height / 2) * scale
 
-          console.log(croppData)
-          ctx.globalCompositeOperation = 'destination-over'
-          canvas.width = croppData.boundaries.x_width
-          canvas.height = croppData.boundaries.y_height
-          if (imageFile.current) {
-            const img = new Image()
-            img.src = URL.createObjectURL(imageFile.current)
-            img.onload = () => {
-              ctx.drawImage(
-                img,
-                croppData.boundaries.x,
-                croppData.boundaries.y,
-                croppData.boundaries.x_width,
-                croppData.boundaries.y_height,
-                0,
-                0,
-                croppData.boundaries.x_width,
-                croppData.boundaries.y_height
-              )
-            }
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale)
+            ctx.lineWidth = 3
+            ctx.strokeStyle = 'red'
+            ctx.beginPath()
+            points.forEach((point, index) => {
+              if (index === 0) {
+                ctx.moveTo(point[0] * scale + x, point[1] * scale + y)
+              } else {
+                ctx.lineTo(point[0] * scale + x, point[1] * scale + y)
+              }
+            })
+            // ctx.scale()
+
+            ctx.lineTo(points[0][0] * scale + x, points[0][1] * scale + y)
+            ctx.closePath()
+            ctx.stroke()
+
+            // ctx.drawImage(img, x, y, img.width * scale, img.height * scale)
           }
-          ctx.globalCompositeOperation = 'source-over'
           setResizedImg(canvasRef.current.toDataURL('image/png'))
         }
       }
@@ -97,25 +81,28 @@ export const AutoCrop = () => {
   }
   return (
     <LoadingOverlay active={isLoading} spinner text="Processing Image">
-      <div>
-        <h1>Image Resizer</h1>
-        <input type="file" accept="image/*" onChange={handleFile}></input>
-        <div className="container">
+      <h1>Image Resizer</h1>
+      <input type="file" accept="image/*" onChange={handleFile}></input>
+      <div className="flex flex-row">
+        <div className="flex">
           <div className="flex flex-row space-x-4 px-4 py-4 shadow">
             <div className="flex flex-col ">
-              {originalImage && <img className="image" src={originalImage} />}
+              {originalImage && (
+                <img className="image w-1/2" src={originalImage} />
+              )}
             </div>
             <div className="flex flex-col">
-              {resizedImg && <img className="image" src={resizedImg} />}
+              {resizedImg && <img className="image w-1/2" src={resizedImg} />}
             </div>
           </div>
         </div>
-
-        <canvas
-          className=" bordered border-solid border-black bg-gray-900 "
-          ref={canvasRef}
-        />
       </div>
+      <canvas
+        height={500}
+        width={500}
+        className=" bordered border-solid border-black bg-gray-900  "
+        ref={canvasRef}
+      />
     </LoadingOverlay>
   )
 }

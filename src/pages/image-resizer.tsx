@@ -13,7 +13,6 @@ export const ImageResizer = () => {
   }
   const handleResize = async (originalImage: string) => {
     const data = await resizeImage(originalImage, 20000)
-    console.log(data)
 
     if (data) {
       setResizedImage({
