@@ -9,6 +9,7 @@ import Loading from 'components/Loading'
 import { AutoCrop } from 'pages/auto-crop'
 import { HtmlQrReader } from 'pages/canvasQr'
 import { callApi, signMessage } from 'utils/encode'
+import { DragImage } from 'pages/drag-image'
 
 function App() {
   const date = new Date()
@@ -26,6 +27,7 @@ function App() {
           <Route exact path="/Qr-reader" component={QrReader} />
           <Route exact path="/auto-crop" component={AutoCrop} />
           <Route exact path="/HtmlQrReader" component={HtmlQrReader} />
+          <Route exact path="/drag-image" component={DragImage} />
         </Switch>
       </Suspense>
     </Router>

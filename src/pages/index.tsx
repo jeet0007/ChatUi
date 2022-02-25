@@ -23,6 +23,11 @@ export const TableOfContext = () => {
             HtmlQrReader
           </a>
         </li>
+        <li>
+          <a className="link hover:border-blue-300" href="/drag-image">
+            Drag Image
+          </a>
+        </li>
       </ul>
     </div>
   )
