@@ -101,7 +101,6 @@ export const getQrData = async (file: File): Promise<string> => {
             const region = scanRegions[index]
             canvas.width = region.canvasWidth
             canvas.height = region.canvasHeight
-            console.log(region.canvasWidth, region.canvasHeight)
 
             ctx?.drawImage(
               image,

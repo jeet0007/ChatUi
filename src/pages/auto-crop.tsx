@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { getCropPosition } from 'utils/autoCrop'
 import LoadingOverlay from 'react-loading-overlay'
-import polygonCrop from 'polygon-crop'
 
 export const AutoCrop = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)

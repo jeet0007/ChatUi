@@ -12,7 +12,6 @@ const Html5QrcodePlugin = () => {
 
   const onSuccess = (decodedText, decodedResult) => {
     if (decodedText) setUrl(decodedText)
-    console.log('decodedResult', decodedResult)
   }
   useEffect(() => {
     if (qrScanner) {
@@ -23,7 +22,6 @@ const Html5QrcodePlugin = () => {
       setState(state)
     }
   }, [url, qrScanner, state])
-  console.log(state)
 
   const onFailure = () => {}
   useEffect(() => {

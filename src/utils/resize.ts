@@ -73,7 +73,6 @@ export const resizeImage = async (
     middle = (low + high) / 2
     result = canvasToFile(canvas, 'test.png')
   }
-  console.log('result ', result)
 
   return result as File
 }
