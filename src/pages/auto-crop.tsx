@@ -131,7 +131,7 @@ export const AutoCrop = () => {
           <img
             alt="Crop me"
             src={imgSrc}
-            style={{ transform: `rotate(${rotate}deg)` }}
+            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
             onLoad={onImageLoad}
           />
         </ReactCrop>
