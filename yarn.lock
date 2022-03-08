@@ -10698,10 +10698,10 @@ react-i18next@^11.11.4:
     "@babel/runtime" "^7.14.5"
     html-parse-stringify "^3.0.1"
 
-react-image-crop@^9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/react-image-crop/-/react-image-crop-9.1.1.tgz#b44aef24ee429a3bd0397f734d387da9fc16f575"
-  integrity sha512-n7O3Cn7RuZJF8ooau2atwCGWZHqO7akl/pa6IR+1jWy5X0x4enTOCWOeswYhcBOv0ohmDHctAlf6mcUuSSwsow==
+react-image-crop@10.0.0-beta.3:
+  version "10.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/react-image-crop/-/react-image-crop-10.0.0-beta.3.tgz#77acb9c7c6f693d82d7959399f20796fbd271fb5"
+  integrity sha512-W0JP2UWdKv7IrdRNhkwiPNcd6nsjfw/wdje5lqXTsUNhUunt6FwcWnPL/jpbaJZ4/hvwQf8F6MlrYvMW+NH9wg==
   dependencies:
     clsx "^1.1.1"
 

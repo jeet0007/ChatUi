@@ -1,87 +1,163 @@
-/* eslint-disable no-restricted-properties */
-import { useState, useRef, useEffect } from 'react'
-import { getCropPosition } from 'utils/autoCrop'
-import ReactCrop, { Crop } from 'react-image-crop'
+import { cropPreview } from 'components/cropPreview'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import ReactCrop, {
+  centerCrop,
+  makeAspectCrop,
+  Crop,
+  PixelCrop,
+} from 'react-image-crop'
+
 import 'react-image-crop/dist/ReactCrop.css'
-import LoadingOverlay from 'react-loading-overlay'
+import { getCropPosition } from 'utils/autoCrop'
+import { generateDownload } from 'utils/image'
 
 export const AutoCrop = () => {
-  const canvasRef = useRef(null)
-  const [originalImage, setOriginalImage] = useState<string>()
-  const [isLoading, setLoading] = useState(false)
-  const [crop, setCrop] = useState<Crop>({
-    x: 10,
-    y: 25,
-    width: 80,
-    height: 60,
-    unit: '%',
-  })
+  const [imgSrc, setImgSrc] = useState('')
+  const imgRef = useRef<HTMLImageElement>()
+  const previewCanvasRef = useRef(null)
+  const [crop, setCrop] = useState<Crop>()
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
+  const [scale, setScale] = useState(1)
+  const [rotate, setRotate] = useState(0)
   const [points, setPoints] = useState([])
 
   const getImagePolygons = async (image: File) => {
-    setLoading(true)
     setPoints([])
     const data = await getCropPosition(image)
     const { result } = data
     if (result) setPoints(result)
-    setLoading(false)
   }
-  useEffect(() => {
-    if (points.length && canvasRef.current && originalImage) {
-      const canvas = canvasRef.current as any
-      const img = new Image()
-      img.src = originalImage
-      img.onload = () => {
-        const scale = Math.max(
-          canvas.componentRef.current.clientWidth / img.width,
-          canvas.componentRef.current.clientHeight / img.height
-        )
-        const width =
-          Math.sqrt(
-            Math.pow(points[1][0] - points[0][0], 2) +
-              Math.pow(points[1][1] - points[0][1], 2)
-          ) * scale
-        const height =
-          Math.sqrt(
-            Math.pow(points[2][0] - points[1][0], 2) +
-              Math.pow(points[2][1] - points[1][1], 2)
-          ) * scale
-        setCrop({
-          ...crop,
-          x: points[0][0] * scale,
-          y: points[0][1] * scale,
-          width,
-          height,
-        })
-        console.log(width, height)
-      }
+  const onSelectFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const image = e.target.files[0] as File
+      setCrop(undefined) // Makes crop preview update between images.
+      const reader = new FileReader()
+      reader.addEventListener('load', () =>
+        setImgSrc(reader?.result?.toString() || '')
+      )
+      reader.readAsDataURL(image)
+      await getImagePolygons(image)
     }
-  }, [originalImage, points])
+  }
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (imgRef.current && (e.currentTarget as HTMLImageElement))
+      imgRef.current = e.currentTarget
+    const image = new Image()
+    image.src = imgSrc
+    if (image)
+      image.addEventListener('load', (e) => {
+        const { width: originalW, height: originalH } = image
+        const aspect = originalW / originalH
+        const xScale = image.naturalWidth / originalW
+        const yScale = image.naturalHeight / originalH
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e && e.target && e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
-      setOriginalImage(URL.createObjectURL(file))
-      getImagePolygons(file)
-    }
+        const minX = Math.min(...points.map((p) => p[0]))
+        const minY = Math.min(...points.map((p) => p[1]))
+        const maxX = Math.max(...points.map((p) => p[0]))
+        const maxY = Math.max(...points.map((p) => p[1]))
+        const width = (((maxX - minX) * xScale) / image.naturalWidth) * 100
+        const height = (((maxY - minY) * yScale) / image.naturalHeight) * 100
+        const crop = centerCrop(
+          {
+            x: minX * xScale,
+            y: minY * yScale,
+            width,
+            height,
+            unit: '%',
+          },
+          image.naturalWidth,
+          image.naturalHeight
+        )
+
+        console.log(crop)
+
+        setCrop(crop)
+      })
+
+    // This is to demonstate how to make and center a % aspect crop
+    // which is a bit trickier so we use some helper functions.
   }
+
+  const updateCropPreview = useCallback(() => {
+    if (completedCrop && previewCanvasRef.current && imgRef.current) {
+      cropPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        completedCrop,
+        rotate
+      )
+    }
+  }, [completedCrop, rotate])
+
+  useEffect(() => {
+    updateCropPreview()
+  }, [updateCropPreview])
+
   return (
-    <div className="container">
-      <h1>Image Resizer</h1>
-      <input type="file" accept="image/*" onChange={handleFile}></input>
-      <LoadingOverlay active={isLoading} spinner text="Processing Image">
-        {originalImage && points && (
-          <ReactCrop
-            ref={canvasRef}
-            className="max-h-full"
-            src={originalImage}
-            crop={crop}
-            keepSelection
-            onChange={setCrop}
+    <div className="App">
+      <div>
+        <input type="file" accept="image/*" onChange={onSelectFile} />
+        <div>
+          <label htmlFor="scale-input">Scale: </label>
+          <input
+            id="scale-input"
+            type="number"
+            step="0.1"
+            value={scale}
+            disabled={!imgSrc}
+            onChange={(e) => setScale(Number(e.target.value))}
           />
-        )}
-        <canvas ref={canvasRef}></canvas>
-      </LoadingOverlay>
+        </div>
+        <div>
+          <label htmlFor="rotate-input">Rotate: </label>
+          <input
+            id="rotate-input"
+            type="number"
+            value={rotate}
+            disabled={!imgSrc}
+            onChange={(e) =>
+              setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
+            }
+          />
+        </div>
+      </div>
+      {Boolean(imgSrc) && points?.length && (
+        <ReactCrop
+          crop={crop}
+          onChange={(_, percentCrop) => setCrop(percentCrop)}
+          onComplete={(c) => setCompletedCrop(c)}
+          keepSelection
+        >
+          <img
+            alt="Crop me"
+            src={imgSrc}
+            style={{ transform: `rotate(${rotate}deg)` }}
+            onLoad={onImageLoad}
+          />
+        </ReactCrop>
+      )}
+      <div>
+        <canvas
+          ref={previewCanvasRef}
+          style={{
+            // Rounding is important for sharpness.
+            width: Math.floor(completedCrop?.width ?? 0),
+            height: Math.floor(completedCrop?.height ?? 0),
+          }}
+        />
+      </div>
+      {Boolean(completedCrop && previewCanvasRef.current) && (
+        <button
+          type="button"
+          disabled={!completedCrop?.width || !completedCrop.height}
+          onClick={() => {
+            if (previewCanvasRef.current && completedCrop)
+              generateDownload(previewCanvasRef.current, completedCrop)
+          }}
+        >
+          Download cropped image
+        </button>
+      )}
     </div>
   )
 }

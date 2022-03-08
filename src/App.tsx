@@ -8,7 +8,6 @@ import { Suspense } from 'react'
 import Loading from 'components/Loading'
 import { AutoCrop } from 'pages/auto-crop'
 import { HtmlQrReader } from 'pages/canvasQr'
-import { callApi, signMessage } from 'utils/encode'
 
 function App() {
   // const date = new Date()
