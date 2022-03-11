@@ -9,7 +9,7 @@ export const GenetrateZip = () => {
   const getFiles = useCallback(async () => {
     console.log(process.env)
 
-    return fetch(`${CARTER_ENDPOINT}/rooms/download/${roomId}`)
+    return fetch(`${CARTER_ENDPOINT}/rooms/${roomId}/download`)
   }, [roomId])
 
   const handleSubmit = () => {
