@@ -28,6 +28,11 @@ export const TableOfContext = () => {
             Drag Image
           </a>
         </li>
+        <li>
+          <a className="link hover:border-blue-300" href="/GenetrateZip">
+            GenetrateZip
+          </a>
+        </li>
       </ul>
     </div>
   )
