@@ -3,7 +3,7 @@ import Loading from 'components/Loading'
 import { CARTER_ENDPOINT } from 'config/env'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface IFile {
   path: string
@@ -56,12 +56,15 @@ export const GenetrateZip = () => {
   }
   const handleGenerate = () => {
     setLoading(true)
-    downloadAll(files).then(() => {
-      zip.generateAsync({ type: 'blob' }).then(function (content) {
-        saveAs(content, `${roomId}.zip`)
+    downloadAll(files)
+      .then(() => {
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+          saveAs(content, `${roomId}.zip`)
+        })
       })
-    })
-    setLoading(false)
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   return (
